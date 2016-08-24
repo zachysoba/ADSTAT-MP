@@ -9,8 +9,8 @@ public class Driver {
 	public static void main(String[]args){
 		
 		Scanner sc1 = null;
-		int opt;
-		double a,b,num;
+		int opt, choice;
+		double a,b,num, errorToleranceValue;
 		String quadEq;
 		
 		System.out.println("Enter quadratic equations (use only x variable) :");
@@ -42,15 +42,32 @@ public class Driver {
 				a = b;
 				b = temp;
 			}
-				
-			System.out.println("How many iteratations:");
-			sc1 = new Scanner(System.in);
-			num = sc1.nextDouble();
 			
-			if( opt == 0)
-				toBisection(a,b,num,quadEq);
-			else if( opt == 1)
-				toFalsePosition(a,b,num,quadEq);
+			System.out.println("By Iterations[0] or Error Tolerance Value[1]");
+			sc1 = new Scanner(System.in);
+			choice = sc1.nextInt();
+			
+			if(choice == 0){
+				System.out.println("How many iteratations:");
+				sc1 = new Scanner(System.in);
+				num = sc1.nextDouble();
+				
+				if( opt == 0)
+					toBisection(a,b,num,quadEq);
+				else if( opt == 1)
+					toFalsePosition(a,b,num,quadEq);
+			} else if(choice == 1){
+				System.out.println("Enter Error Tolerance Value:");
+				sc1 = new Scanner(System.in);
+				errorToleranceValue = sc1.nextDouble();
+				
+				if( opt == 0)
+					toBisectionET(a,b,errorToleranceValue,quadEq);
+				else if( opt == 1)
+					toFalsePositionET(a,b,errorToleranceValue,quadEq);
+			}
+				
+			
 		}//else if(opt == n){} ... //if you added other options
 	}
 
@@ -121,6 +138,83 @@ public class Driver {
 				b = p;
 			}
 		}
+	}
+	
+	private static void toFalsePositionET(double a, double b, double num, String quadEq) {
+		double fA, fB, p, fP, errorFP = 1;
+		double pFP[] = new double[2];
+		System.out.println("right way");
+
+		System.out.println("False Position");
+		System.out.println("# ||  a  |  b  |  p  | f(p) | error");
+		
+		int ctr1 = 0;
+		
+		do{
+				
+				fA = toEquation(a, quadEq);
+				fB = toEquation(b, quadEq);
+				
+				System.out.println("fA: "+fA+" | fB: "+fB);
+				
+				p = a - ((fA * (b - a)) / (fB - fA));
+				
+				if(ctr1 > 0)
+					pFP[0] = pFP[1];
+				
+				pFP[1] = p;
+				
+				if(ctr1 > 0){
+					errorFP = Math.abs(pFP[1] - pFP[0]);
+					if(errorFP < 0){
+						errorFP = Math.abs(errorFP * -1);
+					}
+				}
+				
+				fP = toEquation(p, quadEq);
+				
+				if(ctr1 == 0)
+					System.out.println((ctr1+1)+" || "+a+" | "+b+" | "+p+" | "+fP+"  | ");
+				else
+					System.out.println((ctr1+1)+" || "+a+" | "+b+" | "+p+" | "+fP+"  | "+errorFP);
+				
+				if(fP < 0){
+					a = p;
+				}else if(fP > 0){
+					b = p;
+				}
+				
+				ctr1++;
+		}while(errorFP >= num);
+	}
+	
+	private static void toBisectionET(double a, double b, double num, String quadEq) {
+		double p,fP, errorTB;
+		
+		System.out.println("Bisection");
+		System.out.println("# ||  a  |  b  |  p  | f(p) | error");
+		
+		int ctr1 = 0;
+		do{
+			p = (a + b)/2;
+			
+			errorTB = b - a;
+			if(errorTB < 0){
+				errorTB = errorTB * -1;
+			}
+			
+			fP = toEquation(p, quadEq);
+			
+			System.out.println((ctr1+1)+" || "+a+" | "+b+" | "+p+" | "+fP+"  | "+errorTB);
+			
+			if(fP < 0){
+				a = p;
+			}else if(fP > 0){
+				b = p;
+			}
+			
+			ctr1++;
+		}while(errorTB >= num);
 	}
 
 	private static double toEquation(double x, String quadEq) {//f(n)
